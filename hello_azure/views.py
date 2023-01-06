@@ -1,22 +1,17 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 def index(request):
     print('Request for index page received')
-    return render(request, 'hello_azure/index.html')
+    name = getattr(settings, "USER_NAME", None)
+    
+    if not name:
+        raise ImproperlyConfigured('Configuration could not be loaded')
 
-@csrf_exempt
-def hello(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        
-        if name is None or name == '':
-            print("Request for hello page received with no name or blank name -- redirecting")
-            return redirect('index')
-        else:
-            print("Request for hello page received with name=%s" % name)
-            context = {'name': name }
-            return render(request, 'hello_azure/hello.html', context)
-    else:
-        return redirect('index')
+    language = getattr(settings, "LANGUAGE_CODE", None)
+
+    context = {"name": name, "language": language}
+    return render(request, 'hello_azure/index.html', context)
