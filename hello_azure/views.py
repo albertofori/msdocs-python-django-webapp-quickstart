@@ -12,6 +12,6 @@ def index(request):
         raise ImproperlyConfigured('Configuration could not be loaded')
 
     language = getattr(settings, "LANGUAGE_CODE", None)
-
-    context = {"name": name, "language": language}
+    secret_key = getattr(settings, "SECRET_KEY", None)
+    context = {"name": name, "language": language, "key": secret_key}
     return render(request, 'hello_azure/index.html', context)

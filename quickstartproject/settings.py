@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 import os
 from pathlib import Path
+from azure.appconfiguration.provider import load_provider, AzureAppConfigurationKeyVaultOptions
+from azure.identity import DefaultAzureCredential
+
+CONFIG_CONNECTION_STRING = "your-connection-string"
+keyvault_options = AzureAppConfigurationKeyVaultOptions(credential=DefaultAzureCredential())
+config = load_provider(connection_string=CONFIG_CONNECTION_STRING, key_vault_options=keyvault_options)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1234567890'
+SECRET_KEY = config.get('secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -105,7 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = config.get('language_code', 'en-us')
+
+USER_NAME = config.get('name')
 
 TIME_ZONE = 'UTC'
 
@@ -124,5 +132,3 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-from .custom import *
